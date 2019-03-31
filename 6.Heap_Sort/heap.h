@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <memory>
 using std::vector;
@@ -21,13 +22,19 @@ public:
 	vector<T> data() {
 		return A;
 	}
+	void heapIncreaseKey(int i, T key);
+	void insert(T key);
 	void sortH();
+	void printH();
+	T heapMaximum();
+	T heapExtractMax();
 private:
 	vector<T> A;
 	int heapSize;
 	void maxHeapify (heap &, const int);
 	void buildMaxHeap(heap &);
 	void sortH(heap &);
+	T heapExtractMax(heap&);
 	inline int PARENT(int i) {
 		return (i - 1) / 2;
 	}
@@ -37,7 +44,7 @@ private:
 	inline int RIGHT(int i) {
 		return i * 2 + 2;
 	}
-	
+
 };
 
 template<typename T>
@@ -68,7 +75,6 @@ void heap<T>::buildMaxHeap(heap<T> &a) {
 }
 
 
-
 template<typename T>
 void heap<T>::sortH() {
 	sortH(*this);
@@ -79,6 +85,7 @@ void heap<T>::sortH(heap<T> &a) {
 	for (int i = a.heapSize - 1; i >= 1; i--) {
 		swap(a[0], a[i]);
 		a.heapSize -= 1;
+		a.A.pop_back();
 		maxHeapify(a, 0);
 	}
 }
@@ -89,6 +96,60 @@ void heapSort(vector<T> &a) {
 	tmp->sortH();
 	a = tmp->data();
 	delete tmp;
+}
+
+template<typename T>
+T heap<T>::heapMaximum() {
+	return this->data()[0];
+}
+
+template<typename T>
+T heap<T>::heapExtractMax(heap<T>& A) {
+	if (A.heapSize < 1)
+		throw "Heap underflow";
+	int max = A[0];
+	A[0] = A[A.heapSize - 1];
+	A.heapSize -= 1;
+	A.A.pop_back();
+	maxHeapify(A, 0);
+	return max;
+}
+
+template<typename T>
+T heap<T>::heapExtractMax() {
+	return heapExtractMax(*this);
+}
+
+template<typename T>
+void heap<T>::printH() {
+	for (int i = 0; i < heapSize; ++i) {
+		std::cout << A[i] << std::endl;
+	}
+}
+
+
+template<typename T>
+void heap<T>::heapIncreaseKey(int i, T key) {
+	if (i >= heapSize) {
+		std::cerr << "Subscript crossover" << std::endl;
+		return;
+	}
+	if (key < A[i]) {
+		std::cerr << "new key is smaller than current key!\n";
+		return;
+	}
+	A[i] = key;
+	while (i > 0 && A[PARENT(i)] < A[i]) {
+		swap(A[i], A[PARENT(i)]);
+		i = PARENT(i);
+	}
+}
+
+template <typename T>
+void heap<T>::insert(T key) {
+	heapSize += 1;
+	A.push_back(static_cast<T> (INT_MIN));
+	heapIncreaseKey(heapSize - 1, key);
 }
 
 
